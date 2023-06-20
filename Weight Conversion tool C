@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <gtk/gtk.h>
+
+// Conversion functions
+double poundsToKilograms(double pounds) {
+    return pounds * 0.453592;
+}
+
+double kilogramsToPounds(double kilograms) {
+    return kilograms * 2.20462;
+}
+
+// Callback function for the Convert button
+void convertButtonClicked(GtkButton *button, GtkEntry *entry, GtkLabel *resultLabel) {
+    const gchar *inputText = gtk_entry_get_text(entry);
+    double inputValue = atof(inputText);
+
+    // Perform conversion
+    double convertedValue;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+        // Pounds to Kilograms
+        convertedValue = poundsToKilograms(inputValue);
+        gtk_label_set_text(resultLabel, g_strdup_printf("%.2f pounds = %.2f kilograms", inputValue, convertedValue));
+    } else {
+        // Kilograms to Pounds
+        convertedValue = kilogramsToPounds(inputValue);
+        gtk_label_set_text(resultLabel, g_strdup_printf("%.2f kilograms = %.2f pounds", inputValue, convertedValue));
+    }
+}
+
+int main(int argc, char *argv[]) {
+    // Initialize GTK
+    gtk_init(&argc, &argv);
+
+    // Create the main window
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "Weight Conversion Tool");
+    gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+    gtk_widget_set_size_request(window, 300, 150);
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+    // Create a vertical box layout
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+
+    // Create the input entry
+    GtkWidget *entry = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "Enter weight");
+    gtk_box_pack_start(GTK_BOX(vbox), entry, TRUE, TRUE, 0);
+
+    // Create the conversion mode toggle
+    GtkWidget *toggle = gtk_check_button_new_with_label("Pounds to Kilograms");
+    gtk_box_pack_start(GTK_BOX(vbox), toggle, TRUE, TRUE, 0);
+
+    // Create the Convert button
+    GtkWidget *convertButton = gtk_button_new_with_label("Convert");
+    gtk_box_pack_start(GTK_BOX(vbox), convertButton, TRUE, TRUE, 0);
+
+    // Create the result label
+    GtkWidget *resultLabel = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(vbox), resultLabel, TRUE, TRUE, 0);
+
+    // Connect the Convert button click event to the callback function
+    g_signal_connect(convertButton, "clicked", G_CALLBACK(convertButtonClicked), entry);
+    
+    // Show all the widgets
+    gtk_widget_show_all(window);
+
+    // Run the GTK main loop
+    gtk_main();
+
+    return 0;
+}
